@@ -1,5 +1,6 @@
 package com.example.currencyconverter.presentation.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +16,7 @@ import com.example.currencyconverter.data.dto.ExchangeRateResponse
 import com.example.currencyconverter.data.remote.RetrofitHelper
 import com.example.currencyconverter.databinding.FragmentSearchBinding
 import com.example.currencyconverter.presentation.adapter.ExchangeRateAdapter
+import com.example.currencyconverter.presentation.ui.DetailsActivity
 import com.example.currencyconverter.util.Const
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +30,7 @@ class SearchFragment : Fragment() {
     private val binding get() = _binding!!
     private val exchangerate by lazy { RetrofitHelper.exchangeRateAPI }
     private var currencyList: List<String> = listOf()
-    private val exchangeRateAdapter by lazy { ExchangeRateAdapter(emptyList()) }
+    private lateinit var exchangeRateAdapter: ExchangeRateAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,7 +43,13 @@ class SearchFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Configuração do RecyclerView
+        exchangeRateAdapter = ExchangeRateAdapter(emptyList()) { exchangeRateItem ->
+            val intent = Intent(requireContext(), DetailsActivity::class.java)
+            val spinner = binding.spinner.selectedItem.toString()
+            intent.putExtra("rate", exchangeRateItem.rate)
+            intent.putExtra("spinner",spinner)
+            startActivity(intent)
+        }
         binding.currencyRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.currencyRecyclerView.adapter = exchangeRateAdapter
 
@@ -96,9 +104,9 @@ class SearchFragment : Fragment() {
 
     private suspend fun fetchExchangeRates() {
         var retorno: Response<ExchangeRateResponse>? = null
-        val sourceCurrency = binding.spinner.selectedItem.toString()
+        val spinner = binding.spinner.selectedItem.toString()
         try {
-            retorno = exchangerate.getExchangeRates(Const.API_KEY, sourceCurrency)
+            retorno = exchangerate.getExchangeRates(spinner)
         } catch (e: Exception) {
             e.printStackTrace()
         }

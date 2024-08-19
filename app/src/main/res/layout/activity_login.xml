@@ -16,7 +16,7 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="200dp"
         android:text="Log in"
-        android:textColor="@color/orange"
+        android:textColor="@color/amarelo_cinza"
         android:textSize="50sp"
         android:textStyle="bold"
 
@@ -124,7 +124,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Register now"
-        android:textColor="@color/orange"
+        android:textColor="@color/amarelo_cinza"
         android:textStyle="bold"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="@+id/textView7"

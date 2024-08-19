@@ -7,7 +7,8 @@ import com.example.currencyconverter.data.dto.ExchangeRateItem
 import com.example.currencyconverter.databinding.CurrencyItemLayoutBinding
 
 
-class ExchangeRateAdapter(private var rates: List<ExchangeRateItem>) :
+class ExchangeRateAdapter(private var rates: List<ExchangeRateItem>,
+    val onClick: (ExchangeRateItem) -> Unit) :
     RecyclerView.Adapter<ExchangeRateAdapter.ExchangeRateViewHolder>() {
 
     inner class ExchangeRateViewHolder(private val binding: CurrencyItemLayoutBinding) :
@@ -15,6 +16,9 @@ class ExchangeRateAdapter(private var rates: List<ExchangeRateItem>) :
         fun bind(rateItem: ExchangeRateItem) {
             binding.currencyNameTextView.text = rateItem.currencyPair
             binding.currencyPriceTextView.text = rateItem.rate.toString()
+            binding.currencyCardView.setOnClickListener {
+                onClick(rateItem)
+            }
         }
     }
 

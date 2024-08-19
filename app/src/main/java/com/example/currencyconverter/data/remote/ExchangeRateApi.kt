@@ -3,6 +3,7 @@ package com.example.currencyconverter.data.remote
 
 import com.example.currencyconverter.data.dto.CurrencyConversionResponse
 import com.example.currencyconverter.data.dto.CurrenciesResponse
+import com.example.currencyconverter.data.dto.CurrencyChangeQueries
 import com.example.currencyconverter.data.dto.ExchangeRateResponse
 import com.example.currencyconverter.util.Const
 import retrofit2.Response
@@ -21,10 +22,16 @@ interface ExchangeRateApi {
     @GET("list?access_key=${Const.API_KEY}")
     suspend fun currencies(): Response<CurrenciesResponse>
 
-    @GET("live")
+    @GET("live?access_key=${Const.API_KEY}")
     suspend fun getExchangeRates(
-        @Query("access_key") accessKey: String,
         @Query("source") source: String
     ): Response<ExchangeRateResponse>
+
+    @GET("change?access_key=${Const.API_KEY}")
+    suspend fun getData(
+        @Query("source") currency: String,
+        @Query("start_date") startDate: String,
+        @Query("end_date") endDate: String
+    ): Response<CurrencyChangeQueries>
 
 }

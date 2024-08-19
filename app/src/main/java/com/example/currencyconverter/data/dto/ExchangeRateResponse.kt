@@ -1,5 +1,9 @@
 package com.example.currencyconverter.data.dto
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+
 data class ExchangeRateResponse(
     val success: Boolean,
     val terms: String,

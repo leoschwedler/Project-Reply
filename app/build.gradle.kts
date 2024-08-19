@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id ("kotlin-parcelize")
+    id("com.google.dagger.hilt.android")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -41,11 +43,24 @@ android {
 
 dependencies {
 
+    val lifecycle_version = "2.8.4"
+    //Toolbar
     implementation ("nl.joery.animatedbottombar:library:1.1.0")
-
     //Retrofit
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    //Gson
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    //Loading ViewModel
+    implementation("androidx.fragment:fragment-ktx:1.8.2")
+    // LiveData
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
+    // ViewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
+    //Hilt Dagger
+    implementation("com.google.dagger:hilt-android:2.48.1")
+    //Ksp
+    ksp("com.google.dagger:hilt-android-compiler:2.48.1")
+
 
 
 

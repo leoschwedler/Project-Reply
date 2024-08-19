@@ -62,7 +62,6 @@ class HomeFragment : Fragment() {
             retorno = exchangerate.currencyConversion(from, to, amount)
         } catch (e: Exception) {
             e.printStackTrace()
-            Log.i("info_api", "Erro ao fazer a conversao ${e.message}")
         }
         if (retorno != null) {
             if (retorno.isSuccessful) {
