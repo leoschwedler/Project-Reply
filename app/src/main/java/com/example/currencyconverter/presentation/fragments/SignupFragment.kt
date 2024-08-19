@@ -1,28 +1,40 @@
-package com.example.currencyconverter.presentation.ui
+package com.example.currencyconverter.presentation.fragments
 
-import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.example.currencyconverter.R
 import com.example.currencyconverter.data.db.UserDAO
 import com.example.currencyconverter.data.model.User
-import com.example.currencyconverter.databinding.ActivitySignupBinding
+import com.example.currencyconverter.databinding.FragmentSignupBinding
 
-class SignupActivity : AppCompatActivity() {
+class SignupFragment : Fragment() {
 
-    private val binding by lazy { ActivitySignupBinding.inflate(layoutInflater) }
+    private lateinit var binding: FragmentSignupBinding
     private lateinit var userDAO: UserDAO
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentSignupBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        userDAO = UserDAO(this)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Inicialize o UserDAO com o contexto do fragmento
+        userDAO = UserDAO(requireContext())
+
+        initListeners()
+    }
+
+    private fun initListeners() {
         with(binding) {
             buttonCreateAccount.setOnClickListener {
                 val signupEmail = binding.editTextRegisterEmail.text.toString()
@@ -35,8 +47,7 @@ class SignupActivity : AppCompatActivity() {
                 }
             }
             textViewLogin.setOnClickListener {
-                val intent = Intent(this@SignupActivity, LoginActivity::class.java)
-                startActivity(intent)
+                findNavController().navigate(R.id.action_signupFragment_to_loginFragment)
             }
         }
     }
@@ -73,14 +84,14 @@ class SignupActivity : AppCompatActivity() {
         binding.buttonCreateAccount.isEnabled = true
         if (insertRowId != -1L) {
             showToast("Signup successful")
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-            finish()
+            // Navegar para a LoginFragment ou MainActivity, dependendo do seu fluxo
+            findNavController().navigate(R.id.action_signupFragment_to_mainActivity)
         } else {
             showToast("Signup failed")
         }
     }
+
     private fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 }

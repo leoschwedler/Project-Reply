@@ -43,6 +43,7 @@ android {
 
 dependencies {
 
+    implementation(libs.androidx.navigation.fragment)
     val lifecycle_version = "2.8.4"
     //Toolbar
     implementation ("nl.joery.animatedbottombar:library:1.1.0")

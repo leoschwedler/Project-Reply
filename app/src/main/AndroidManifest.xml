@@ -22,16 +22,10 @@
             android:name=".presentation.ui.DetailsActivity"
             android:exported="false" />
         <activity
-            android:name=".presentation.ui.SignupActivity"
-            android:exported="false" />
-        <activity
             android:name=".presentation.ui.MainActivity"
             android:exported="false" />
         <activity
-            android:name=".presentation.ui.LoginActivity"
-            android:exported="false" />
-        <activity
-            android:name=".presentation.ui.IntroActivity"
+            android:name=".presentation.ui.BaseActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
