@@ -6,16 +6,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.currencyconverter.R
-import com.example.currencyconverter.data.db.UserDAO
 import com.example.currencyconverter.data.model.User
 import com.example.currencyconverter.databinding.FragmentSignupBinding
+import com.example.currencyconverter.presentation.viewmodel.SignupViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import androidx.lifecycle.Observer
 
+@AndroidEntryPoint
 class SignupFragment : Fragment() {
 
     private lateinit var binding: FragmentSignupBinding
-    private lateinit var userDAO: UserDAO
+    private val signupViewModel: SignupViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,71 +31,43 @@ class SignupFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // Inicialize o UserDAO com o contexto do fragmento
-        userDAO = UserDAO(requireContext())
-
         initListeners()
+        observeViewModel()
     }
 
     private fun initListeners() {
         with(binding) {
             buttonCreateAccount.setOnClickListener {
-                val signupEmail = binding.editTextRegisterEmail.text.toString()
-                val signUpPassword = binding.editTextRegisterPassword.text.toString()
-                val signUpUser = binding.editTextRegisterUsername.text.toString()
+                val username = editTextRegisterUsername.text.toString()
+                val email = editTextRegisterEmail.text.toString()
+                val password = editTextRegisterPassword.text.toString()
 
-                if (validateInputs(signupEmail, signUpUser, signUpPassword)) {
-                    val newUser = User(-1, signUpUser, signupEmail, signUpPassword)
-                    signUpDataBase(newUser)
+                if (signupViewModel.validateInputs(username, email, password)) {
+                    val user = User(-1, username, email, password)
+                    signupViewModel.signUp(user)
                 }
             }
+
             textViewLogin.setOnClickListener {
                 findNavController().navigate(R.id.action_signupFragment_to_loginFragment)
             }
         }
     }
 
-    private fun validateInputs(email: String, username: String, password: String): Boolean {
-        return when {
-            username.isEmpty() -> {
-                showToast("Please enter a username")
-                false
+    private fun observeViewModel() {
+        signupViewModel.signUpResult.observe(viewLifecycleOwner, Observer { result ->
+            if (result != -1L) {
+                Toast.makeText(context, "Signup Successful", Toast.LENGTH_SHORT).show()
+                findNavController().navigate(R.id.action_signupFragment_to_loginFragment)
+            } else {
+                Toast.makeText(context, "Signup Failed", Toast.LENGTH_SHORT).show()
             }
+        })
 
-            email.isEmpty() -> {
-                showToast("Please enter an email")
-                false
+        signupViewModel.inputValidationError.observe(viewLifecycleOwner, Observer { errorMessage ->
+            errorMessage?.let {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }
-
-            password.isEmpty() -> {
-                showToast("Please enter a password")
-                false
-            }
-
-            password.length < 6 -> {
-                showToast("Password must be at least 6 characters long")
-                false
-            }
-
-            else -> true
-        }
-    }
-
-    private fun signUpDataBase(user: User) {
-        binding.buttonCreateAccount.isEnabled = false
-        val insertRowId = userDAO.insertUser(user)
-        binding.buttonCreateAccount.isEnabled = true
-        if (insertRowId != -1L) {
-            showToast("Signup successful")
-            // Navegar para a LoginFragment ou MainActivity, dependendo do seu fluxo
-            findNavController().navigate(R.id.action_signupFragment_to_mainActivity)
-        } else {
-            showToast("Signup failed")
-        }
-    }
-
-    private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        })
     }
 }

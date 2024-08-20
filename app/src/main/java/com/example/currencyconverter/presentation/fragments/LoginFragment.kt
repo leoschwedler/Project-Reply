@@ -6,80 +6,67 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.currencyconverter.R
-import com.example.currencyconverter.data.db.UserDAO
 import com.example.currencyconverter.data.model.User
 import com.example.currencyconverter.databinding.FragmentLoginBinding
+import com.example.currencyconverter.presentation.viewmodel.LoginViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import androidx.lifecycle.Observer
 
+@AndroidEntryPoint
 class LoginFragment : Fragment() {
 
     private lateinit var binding: FragmentLoginBinding
-    private lateinit var userDAO: UserDAO
+    private val loginViewModel: LoginViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // Inicializar o UserDAO com o contexto do fragmento
-        userDAO = UserDAO(requireContext())
-
         initListeners()
+        observeViewModel()
     }
 
     private fun initListeners() {
         with(binding) {
             buttonLogin.setOnClickListener {
-                val loginEmail = binding.editTextLoginEmail.text.toString()
-                val loginPassword = binding.editTextLoginPassword.text.toString()
+                val email = editTextLoginEmail.text.toString()
+                val password = editTextLoginPassword.text.toString()
 
-                if (validateInputs(loginEmail, loginPassword)) {
-                    val loginUser = User(-1, "", loginEmail, loginPassword)
-                    loginDataBase(loginUser)
+                if (loginViewModel.validateInputs(email, password)) {
+                    val user = User(-1, "", email, password)
+                    loginViewModel.login(user)
                 }
             }
 
             textViewRegisterNow.setOnClickListener {
-                // Navegar para o fragment de Signup
                 findNavController().navigate(R.id.action_loginFragment_to_signupFragment)
             }
         }
     }
 
-    private fun loginDataBase(user: User) {
-        val existingUser = userDAO.readUser(user)
-        if (existingUser) {
-            showToast("Login Successful")
-            // Navegar para o MainActivity ou outra tela de sucesso
-            findNavController().navigate(R.id.action_loginFragment_to_mainActivity)
-        } else {
-            showToast("Login Failed")
-        }
-    }
-
-    private fun validateInputs(email: String, password: String): Boolean {
-        return when {
-            email.isEmpty() -> {
-                showToast("Please enter an email")
-                false
+    private fun observeViewModel() {
+        loginViewModel.loginSuccess.observe(viewLifecycleOwner, Observer { success ->
+            if (success) {
+                Toast.makeText(context, "Login Successful", Toast.LENGTH_SHORT).show()
+                findNavController().navigate(R.id.action_loginFragment_to_mainActivity)
+            } else {
+                Toast.makeText(context, "Login Failed", Toast.LENGTH_SHORT).show()
             }
-            password.isEmpty() -> {
-                showToast("Please enter a password")
-                false
-            }
-            else -> true
-        }
-    }
+        })
 
-    private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        loginViewModel.inputValidationError.observe(viewLifecycleOwner, Observer { errorMessage ->
+            errorMessage?.let {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 }
