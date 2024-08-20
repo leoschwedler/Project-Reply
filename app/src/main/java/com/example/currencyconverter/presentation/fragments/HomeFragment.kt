@@ -1,29 +1,25 @@
+package com.example.currencyconverter.presentation.ui
+
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import com.example.currencyconverter.R
-import com.example.currencyconverter.data.dto.CurrenciesResponse
-import com.example.currencyconverter.data.dto.CurrencyConversionResponse
-import com.example.currencyconverter.data.remote.RetrofitHelper
 import com.example.currencyconverter.databinding.FragmentHomeBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import retrofit2.Response
+import com.example.currencyconverter.presentation.viewmodel.HomeViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    private val exchangerate by lazy {
-        RetrofitHelper.exchangeRateAPI
-    }
-    private var currencyList: List<String> = listOf()
+
+    private val viewModel: HomeViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,14 +32,26 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        CoroutineScope(Dispatchers.IO).launch {
-            currencies()
-        }
+        viewModel.currencies.observe(viewLifecycleOwner, Observer { currencies ->
+            updateSpinners(currencies)
+        })
 
-        binding.button6.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
-                convertCurrency()
-            }
+
+        viewModel.conversionResult.observe(viewLifecycleOwner, Observer { result ->
+            binding.textViewResult.text = result?.toString() ?: ""
+        })
+
+
+        viewModel.quote.observe(viewLifecycleOwner, Observer { quote ->
+            binding.textViewQuote.text = quote ?: ""
+        })
+
+
+        binding.buttonConvert.setOnClickListener {
+            val from = binding.spinner.selectedItem.toString()
+            val to = binding.spinner2.selectedItem.toString()
+            val amount = binding.editTextAmout.text.toString().toDoubleOrNull() ?: 0.0
+            viewModel.convertCurrency(from, to, amount)
         }
     }
 
@@ -52,55 +60,12 @@ class HomeFragment : Fragment() {
         _binding = null
     }
 
-    private suspend fun convertCurrency() {
-        var retorno: Response<CurrencyConversionResponse>? = null
-        val from = binding.spinner.selectedItem.toString()
-        val to = binding.spinner2.selectedItem.toString()
-        val amount = binding.editTextAmout.text.toString().toDouble()
-
-        try {
-            retorno = exchangerate.currencyConversion(from, to, amount)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        if (retorno != null) {
-            if (retorno.isSuccessful) {
-                val currencyConversionResponse = retorno.body()
-                val result = currencyConversionResponse?.result
-                val quote = currencyConversionResponse?.info?.quote
-                withContext(Dispatchers.Main) {
-                    binding.textViewResult.text = result.toString()
-                    binding.textViewQuote.text = "1 $from = $quote"
-                }
-            }
-        }
-    }
-
-    private suspend fun currencies() {
-        var retorno: Response<CurrenciesResponse>? = null
-        try {
-            retorno = exchangerate.currencies()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        if (retorno != null) {
-            if (retorno.isSuccessful) {
-                val currenciesResponse = retorno.body()
-                val currencies = currenciesResponse?.currencies?.keys?.toList() ?: listOf()
-                withContext(Dispatchers.Main) {
-                    updateSpinners(currencies)
-                }
-            }
-        }
-    }
-
     private fun updateSpinners(currencies: List<String>) {
-        currencyList = currencies
         val adapter = ArrayAdapter(
-            requireContext(), R.layout.item_spinner, // Layout customizado para os itens do Spinner
-            currencyList
+            requireContext(), R.layout.item_spinner,
+            currencies
         )
-        adapter.setDropDownViewResource(R.layout.item_spinner_dropdown) // Layout customizado para o dropdown
+        adapter.setDropDownViewResource(R.layout.item_spinner_dropdown)
 
         binding.spinner.adapter = adapter
         binding.spinner2.adapter = adapter

@@ -7,7 +7,11 @@ import javax.inject.Inject
 class ConvertCurrencyUseCase @Inject constructor(
     private val conversionRepository: ConversionRepository
 ) {
-    suspend operator fun invoke(from: String, to: String, amount: Double): CurrencyConversionDomain {
+    suspend operator fun invoke(
+        from: String,
+        to: String,
+        amount: Double
+    ): CurrencyConversionDomain {
         return try {
             conversionRepository.convertCurrency(from, to, amount)
         } catch (e: Exception) {

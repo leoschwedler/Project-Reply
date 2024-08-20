@@ -34,7 +34,6 @@ class SearchViewModel @Inject constructor(
                 val response = getCurrenciesUseCase()
                 _currencies.value = response?.currencies?.keys?.toList() ?: emptyList()
             } catch (e: Exception) {
-                // Handle errors, maybe update a LiveData for errors if necessary
                 e.printStackTrace()
             }
         }
@@ -49,7 +48,6 @@ class SearchViewModel @Inject constructor(
                 } ?: emptyList()
                 _exchangeRates.value = exchangeRateItems
             } catch (e: Exception) {
-                // Handle errors, maybe update a LiveData for errors if necessary
                 e.printStackTrace()
             }
         }

@@ -7,13 +7,13 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.currencyconverter.R
 import com.example.currencyconverter.data.model.User
 import com.example.currencyconverter.databinding.FragmentSignupBinding
 import com.example.currencyconverter.presentation.viewmodel.SignupViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import androidx.lifecycle.Observer
 
 @AndroidEntryPoint
 class SignupFragment : Fragment() {

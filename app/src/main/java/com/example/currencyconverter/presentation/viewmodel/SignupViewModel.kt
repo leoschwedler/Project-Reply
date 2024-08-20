@@ -15,10 +15,8 @@ class SignupViewModel @Inject constructor(
     private val signupUseCase: SignupUseCase
 ) : ViewModel() {
 
-    // LiveData para observar o resultado do signup
     private val _signUpResult = MutableLiveData<Long>()
     val signUpResult: LiveData<Long> get() = _signUpResult
-
 
     private val _inputValidationError = MutableLiveData<String>()
     val inputValidationError: LiveData<String> get() = _inputValidationError
@@ -36,18 +34,22 @@ class SignupViewModel @Inject constructor(
                 _inputValidationError.value = "Please enter a username"
                 false
             }
+
             email.isEmpty() -> {
                 _inputValidationError.value = "Please enter an email"
                 false
             }
+
             password.isEmpty() -> {
                 _inputValidationError.value = "Please enter a password"
                 false
             }
+
             password.length < 6 -> {
                 _inputValidationError.value = "Password must be at least 6 characters long"
                 false
             }
+
             else -> true
         }
     }

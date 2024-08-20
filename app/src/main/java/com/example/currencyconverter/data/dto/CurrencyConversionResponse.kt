@@ -1,5 +1,7 @@
 package com.example.currencyconverter.data.dto
 
+import com.example.currencyconverter.domain.model.CurrencyConversionDomain
+
 data class CurrencyConversionResponse(
     val info: Info,
     val privacy: String,
@@ -8,3 +10,13 @@ data class CurrencyConversionResponse(
     val success: Boolean,
     val terms: String
 )
+fun CurrencyConversionResponse.toCurrencyConversionDomain(): CurrencyConversionDomain {
+    return CurrencyConversionDomain(
+        info = this.info,
+        privacy = this.privacy,
+        query = this.query,
+        result = this.result,
+        success = this.success,
+        terms = this.terms
+    )
+}

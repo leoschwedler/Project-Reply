@@ -1,6 +1,6 @@
 package com.example.currencyconverter.data.repository
 
-import com.example.currencyconverter.data.dto.toCurrenciesDomain // Função de extensão para conversão para o modelo de domínio
+import com.example.currencyconverter.data.dto.toCurrenciesDomain
 import com.example.currencyconverter.data.remote.ExchangeRateApi
 import com.example.currencyconverter.domain.model.CurrenciesDomain
 import com.example.currencyconverter.domain.repository.CurrencyRepository

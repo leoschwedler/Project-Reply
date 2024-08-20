@@ -1,8 +1,8 @@
 package com.example.currencyconverter.data.repository
 
-import com.example.currencyconverter.data.dto.toExchangeRateDomain // Função de extensão para conversão para o modelo de domínio
+import com.example.currencyconverter.data.dto.toExchangeRateDomain
 import com.example.currencyconverter.data.remote.ExchangeRateApi
-import com.example.currencyconverter.domain.model.ExchangeRateDomain // Modelo de domínio
+import com.example.currencyconverter.domain.model.ExchangeRateDomain
 import com.example.currencyconverter.domain.repository.ExchangeRatesRepository
 import javax.inject.Inject
 

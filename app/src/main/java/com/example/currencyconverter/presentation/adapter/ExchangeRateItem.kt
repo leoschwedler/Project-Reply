@@ -7,8 +7,10 @@ import com.example.currencyconverter.data.dto.ExchangeRateItem
 import com.example.currencyconverter.databinding.CurrencyItemLayoutBinding
 
 
-class ExchangeRateAdapter(private var rates: List<ExchangeRateItem>,
-    val onClick: (ExchangeRateItem) -> Unit) :
+class ExchangeRateAdapter(
+    private var rates: List<ExchangeRateItem>,
+    val onClick: (ExchangeRateItem) -> Unit
+) :
     RecyclerView.Adapter<ExchangeRateAdapter.ExchangeRateViewHolder>() {
 
     inner class ExchangeRateViewHolder(private val binding: CurrencyItemLayoutBinding) :
@@ -23,7 +25,8 @@ class ExchangeRateAdapter(private var rates: List<ExchangeRateItem>,
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExchangeRateViewHolder {
-        val binding = CurrencyItemLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding =
+            CurrencyItemLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ExchangeRateViewHolder(binding)
     }
 
@@ -34,9 +37,8 @@ class ExchangeRateAdapter(private var rates: List<ExchangeRateItem>,
 
     override fun getItemCount(): Int = rates.size
 
-    // Novo método para atualizar a lista de taxas
     fun updateRates(newRates: List<ExchangeRateItem>) {
         rates = newRates
-        notifyDataSetChanged() // Notifica que os dados foram atualizados
+        notifyDataSetChanged()
     }
 }

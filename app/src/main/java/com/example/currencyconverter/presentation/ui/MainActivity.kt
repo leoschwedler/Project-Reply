@@ -1,6 +1,6 @@
 package com.example.currencyconverter.presentation.ui
 
-import HomeFragment
+
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -9,8 +9,10 @@ import com.example.currencyconverter.R
 import com.example.currencyconverter.databinding.ActivityMainBinding
 
 import com.example.currencyconverter.presentation.fragments.SearchFragment
+import dagger.hilt.android.AndroidEntryPoint
 import nl.joery.animatedbottombar.AnimatedBottomBar
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -21,8 +23,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Configuração do listener do Bottom Navigation
-        binding.bottomNavigationView.setOnTabSelectListener(object : AnimatedBottomBar.OnTabSelectListener {
+        binding.bottomNavigationView.setOnTabSelectListener(object :
+            AnimatedBottomBar.OnTabSelectListener {
             override fun onTabSelected(
                 lastIndex: Int,
                 lastTab: AnimatedBottomBar.Tab?,
@@ -36,7 +38,6 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        // Exibe o fragmento inicial
         if (savedInstanceState == null) {
             replaceFragment(HomeFragment())
         }
@@ -45,6 +46,6 @@ class MainActivity : AppCompatActivity() {
     private fun replaceFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.frameLayout, fragment)
-            .commitAllowingStateLoss() // Use this method to avoid state loss issues
+            .commitAllowingStateLoss()
     }
 }

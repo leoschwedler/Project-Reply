@@ -5,32 +5,27 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.currencyconverter.R
-import com.example.currencyconverter.data.dto.CurrenciesResponse
-import com.example.currencyconverter.data.dto.ExchangeRateItem
-import com.example.currencyconverter.data.dto.ExchangeRateResponse
-import com.example.currencyconverter.data.remote.RetrofitHelper
 import com.example.currencyconverter.databinding.FragmentSearchBinding
 import com.example.currencyconverter.presentation.adapter.ExchangeRateAdapter
 import com.example.currencyconverter.presentation.ui.DetailsActivity
-import com.example.currencyconverter.util.Const
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import retrofit2.Response
+import com.example.currencyconverter.presentation.viewmodel.SearchViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SearchFragment : Fragment() {
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
-    private val exchangerate by lazy { RetrofitHelper.exchangeRateAPI }
-    private var currencyList: List<String> = listOf()
+
     private lateinit var exchangeRateAdapter: ExchangeRateAdapter
+    private val viewModel: SearchViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,26 +38,38 @@ class SearchFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Setup RecyclerView Adapter
         exchangeRateAdapter = ExchangeRateAdapter(emptyList()) { exchangeRateItem ->
             val intent = Intent(requireContext(), DetailsActivity::class.java)
             val spinner = binding.spinner.selectedItem.toString()
             intent.putExtra("rate", exchangeRateItem.rate)
-            intent.putExtra("spinner",spinner)
+            intent.putExtra("spinner", spinner)
             startActivity(intent)
         }
         binding.currencyRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.currencyRecyclerView.adapter = exchangeRateAdapter
 
-        // Carregar dados iniciais e configurar listeners
-        CoroutineScope(Dispatchers.IO).launch {
-            currencies()
-        }
+        // Observe LiveData from ViewModel
+        viewModel.currencies.observe(viewLifecycleOwner, Observer { currencies ->
+            updateSpinners(currencies)
+        })
+
+        viewModel.exchangeRates.observe(viewLifecycleOwner, Observer { exchangeRates ->
+            exchangeRateAdapter.updateRates(exchangeRates)
+        })
+
+        // Fetch currencies initially
+        viewModel.fetchCurrencies()
 
         binding.spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    fetchExchangeRates()
-                }
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val baseCurrency = binding.spinner.selectedItem.toString()
+                viewModel.fetchExchangeRates(baseCurrency)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
@@ -76,48 +83,12 @@ class SearchFragment : Fragment() {
         _binding = null
     }
 
-    private suspend fun currencies() {
-        var retorno: Response<CurrenciesResponse>? = null
-        try {
-            retorno = exchangerate.currencies()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        if (retorno != null && retorno.isSuccessful) {
-            val currenciesResponse = retorno.body()
-            val currencies = currenciesResponse?.currencies?.keys?.toList() ?: listOf()
-            withContext(Dispatchers.Main) {
-                updateSpinners(currencies)
-            }
-        }
-    }
-
     private fun updateSpinners(currencies: List<String>) {
-        currencyList = currencies
         val adapter = ArrayAdapter(
             requireContext(), R.layout.item_spinner,
-            currencyList
+            currencies
         )
         adapter.setDropDownViewResource(R.layout.item_spinner_dropdown)
         binding.spinner.adapter = adapter
-    }
-
-    private suspend fun fetchExchangeRates() {
-        var retorno: Response<ExchangeRateResponse>? = null
-        val spinner = binding.spinner.selectedItem.toString()
-        try {
-            retorno = exchangerate.getExchangeRates(spinner)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        if (retorno != null && retorno.isSuccessful) {
-            val exchangeRates = retorno.body()?.quotes?.map { (key, value) ->
-                ExchangeRateItem(currencyPair = key, rate = value)
-            } ?: emptyList()
-
-            withContext(Dispatchers.Main) {
-                exchangeRateAdapter.updateRates(exchangeRates)
-            }
-        }
     }
 }

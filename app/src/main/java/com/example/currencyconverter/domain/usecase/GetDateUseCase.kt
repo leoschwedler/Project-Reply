@@ -7,7 +7,11 @@ import javax.inject.Inject
 class GetDateUseCase @Inject constructor(
     private val repository: DateRepository
 ) {
-    suspend operator fun invoke(source: String, startDate: String, endDate: String): CurrencyChangeQueriesDomain {
+    suspend operator fun invoke(
+        source: String,
+        startDate: String,
+        endDate: String
+    ): CurrencyChangeQueriesDomain {
         return try {
             repository.getDate(source, startDate, endDate)
         } catch (e: Exception) {

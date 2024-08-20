@@ -18,11 +18,10 @@ class DetailsViewModel @Inject constructor(
     private val getDateUseCase: GetDateUseCase
 ) : ViewModel() {
 
-    // LiveData para o modelo de domínio
     private val _currencyChangeQueriesDomain = MutableLiveData<CurrencyChangeQueriesDomain?>()
-    val currencyChangeQueriesDomain: LiveData<CurrencyChangeQueriesDomain?> = _currencyChangeQueriesDomain
+    val currencyChangeQueriesDomain: LiveData<CurrencyChangeQueriesDomain?> =
+        _currencyChangeQueriesDomain
 
-    // LiveData para erros ou status de carregamento
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
 
@@ -32,11 +31,10 @@ class DetailsViewModel @Inject constructor(
                 val (startDate, endDate) = getDateRange(period)
                 val result = getDateUseCase(source, startDate, endDate)
                 _currencyChangeQueriesDomain.value = result
-                _error.value = null // Limpar qualquer erro anterior
+                _error.value = null
             } catch (e: Exception) {
-                // Definir o erro na LiveData
                 _error.value = "Failed to fetch data: ${e.message}"
-                _currencyChangeQueriesDomain.value = null // Limpar dados anteriores
+                _currencyChangeQueriesDomain.value = null
             }
         }
     }
@@ -52,7 +50,7 @@ class DetailsViewModel @Inject constructor(
             "30 days" -> now.minus(30, ChronoUnit.DAYS)
             "90 days" -> now.minus(90, ChronoUnit.DAYS)
             "1 year" -> now.minus(1, ChronoUnit.YEARS)
-            else -> now.minus(1, ChronoUnit.DAYS) // Valor padrão para períodos desconhecidos
+            else -> now.minus(1, ChronoUnit.DAYS)
         }.format(formatter)
 
         val endDate = now.format(formatter)

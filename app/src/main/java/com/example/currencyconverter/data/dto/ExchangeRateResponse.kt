@@ -1,7 +1,6 @@
 package com.example.currencyconverter.data.dto
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
+import com.example.currencyconverter.domain.model.ExchangeRateDomain
 
 
 data class ExchangeRateResponse(
@@ -12,4 +11,15 @@ data class ExchangeRateResponse(
     val source: String,
     val quotes: Map<String, Double>
 )
+
+fun ExchangeRateResponse.toExchangeRateDomain(): ExchangeRateDomain {
+    return ExchangeRateDomain(
+        success = this.success,
+        terms = this.terms,
+        privacy = this.privacy,
+        timestamp = this.timestamp,
+        source = this.source,
+        quotes = this.quotes
+    )
+}
 
